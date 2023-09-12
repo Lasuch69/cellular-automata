@@ -9,6 +9,8 @@ using namespace godot;
 class CellularAutomata : public RefCounted {
 	GDCLASS(CellularAutomata, RefCounted);
 
+	RandomNumberGenerator *rng;
+
 	int adjacent_walls_threshold = 5;
 	int nearby_walls_threshold = 2;
 
@@ -24,11 +26,14 @@ protected:
 	static void _bind_methods();
 
 public:
-	TypedArray<bool> generate(int p_width, int p_height, int p_iterations, int p_density) const;
+	TypedArray<bool> generate(int p_width, int p_height, int p_iterations, int p_density, int p_seed = 0) const;
 
 	void set_adjacent_walls_threshold(int p_threshold);
 	int get_adjacent_walls_threshold() const { return adjacent_walls_threshold; }
 
 	void set_nearby_walls_threshold(int p_threshold);
 	int get_nearby_walls_threshold() const { return nearby_walls_threshold; }
+
+	CellularAutomata();
+	~CellularAutomata();
 };

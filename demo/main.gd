@@ -8,11 +8,8 @@ const DENSITY: int = 45
 
 var cellular_automata := CellularAutomata.new()
 
-func _ready() -> void:
-#	cellular_automata.adjacent_walls_threshold = 6
-#	cellular_automata.nearby_walls_threshold = 1
-	
-	var map: Array[bool] = cellular_automata.generate(WIDTH, HEIGHT, ITERATIONS, DENSITY)
+func redraw(p_seed: int = 0) -> void:
+	var map: Array[bool] = cellular_automata.generate(WIDTH, HEIGHT, ITERATIONS, DENSITY, p_seed)
 	
 	var buffer: PackedByteArray = map.map(func(value: bool): return int(value) * 255)
 	
@@ -20,3 +17,7 @@ func _ready() -> void:
 	var texture: ImageTexture = ImageTexture.create_from_image(image)
 	
 	$Sprite2D.texture = texture
+
+func _input(event: InputEvent) -> void:
+	if event.is_action("ui_accept") and event.is_pressed():
+		redraw(randi())

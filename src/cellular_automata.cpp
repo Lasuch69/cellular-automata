@@ -1,12 +1,15 @@
+#include <godot_cpp/classes/random_number_generator.hpp>
+#include <godot_cpp/core/class_db.hpp>
+
 #include "cellular_automata.hpp"
-#include "godot_cpp/core/error_macros.hpp"
 
 using namespace godot;
 
-TypedArray<bool> CellularAutomata::generate(int p_width, int p_height, int p_iterations, int p_density) const {
+TypedArray<bool> CellularAutomata::generate(int p_width, int p_height, int p_iterations, int p_density, int p_seed) const {
 	TypedArray<bool> map;
 	map.resize(p_width * p_height);
 
+	rng->set_seed(p_seed);
 	random_fill(map, p_width, p_height, p_density);
 
 	for (int i = 0; i < p_iterations; i++) {
@@ -17,15 +20,13 @@ TypedArray<bool> CellularAutomata::generate(int p_width, int p_height, int p_ite
 }
 
 void CellularAutomata::random_fill(TypedArray<bool> &p_map, int p_width, int p_height, int p_density) const {
-	RandomNumberGenerator rng;
-
-	int random_column = rng.randi_range(4, p_width - 4);
+	int random_column = rng->randi_range(4, p_width - 4);
 
 	for (int y = 0; y < p_height; y++) {
 		for (int x = 0; x < p_width; x++) {
 			if (x == 0 || y == 0 || x == p_width - 1 || y == p_height - 1)
 				p_map[x + y * p_width] = true;
-			else if (x != random_column && rng.randf() * 100 < p_density)
+			else if (x != random_column && rng->randf() * 100 < p_density)
 				p_map[x + y * p_width] = true;
 		}
 	}
@@ -95,7 +96,7 @@ void CellularAutomata::set_nearby_walls_threshold(int p_threshold) {
 }
 
 void CellularAutomata::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("generate", "width", "height", "iterations", "density"), &CellularAutomata::generate);
+	ClassDB::bind_method(D_METHOD("generate", "width", "height", "iterations", "density", "seed"), &CellularAutomata::generate, DEFVAL(0));
 
 	ClassDB::bind_method(D_METHOD("set_adjacent_walls_threshold", "threshold"), &CellularAutomata::set_adjacent_walls_threshold);
 	ClassDB::bind_method(D_METHOD("get_adjacent_walls_threshold"), &CellularAutomata::get_adjacent_walls_threshold);
@@ -105,4 +106,12 @@ void CellularAutomata::_bind_methods() {
 
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "adjacent_walls_threshold"), "set_adjacent_walls_threshold", "get_adjacent_walls_threshold");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "nearby_walls_threshold"), "set_nearby_walls_threshold", "get_nearby_walls_threshold");
+}
+
+CellularAutomata::CellularAutomata() {
+	rng = memnew(RandomNumberGenerator);
+}
+
+CellularAutomata::~CellularAutomata() {
+	memdelete(rng);
 }
