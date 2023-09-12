@@ -3,6 +3,7 @@
 #include <godot_cpp/core/defs.hpp>
 #include <godot_cpp/godot.hpp>
 
+#include "cellular_automata.hpp"
 #include "register_types.h"
 
 using namespace godot;
@@ -11,7 +12,8 @@ void initialize_gdextension_types(ModuleInitializationLevel p_level) {
 	if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE) {
 		return;
 	}
-	//ClassDB::register_class<YourClass>();
+
+	ClassDB::register_class<CellularAutomata>();
 }
 
 void uninitialize_gdextension_types(ModuleInitializationLevel p_level) {
