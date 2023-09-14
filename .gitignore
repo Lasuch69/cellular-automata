@@ -26,7 +26,10 @@ demo/bin/*
 
 # Other stuff
 *.log
+
+# Clangd
 compile_commands.json
+.cache/
 
 # VSCode
 .vscode/*
