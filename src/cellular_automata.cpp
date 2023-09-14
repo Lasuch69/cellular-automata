@@ -6,56 +6,65 @@
 using namespace godot;
 
 TypedArray<bool> CellularAutomata::generate(int p_width, int p_height, int p_iterations, int p_density, int p_seed) const {
-	TypedArray<bool> map;
-	map.resize(p_width * p_height);
-
 	rng->set_seed(p_seed);
+
+	Vector<bool> map;
+	map.resize(p_width * p_height);
+	map.fill(false);
+
 	random_fill(map, p_width, p_height, p_density);
 
 	for (int i = 0; i < p_iterations; i++) {
 		map = step(map, p_width, p_height);
 	}
 
-	return map;
+	TypedArray<bool> map_arr;
+	map_arr.resize(map.size());
+
+	for (int i = 0; i < map.size(); i++) {
+		map_arr[i] = map[i];
+	}
+
+	return map_arr;
 }
 
-void CellularAutomata::random_fill(TypedArray<bool> &p_map, int p_width, int p_height, int p_density) const {
+void CellularAutomata::random_fill(Vector<bool> &p_map, int p_width, int p_height, int p_density) const {
 	int random_column = rng->randi_range(4, p_width - 4);
 
 	for (int y = 0; y < p_height; y++) {
 		for (int x = 0; x < p_width; x++) {
 			if (x == 0 || y == 0 || x == p_width - 1 || y == p_height - 1)
-				p_map[x + y * p_width] = true;
+				p_map.write[x + y * p_width] = true;
 			else if (x != random_column && rng->randf() * 100 < p_density)
-				p_map[x + y * p_width] = true;
+				p_map.write[x + y * p_width] = true;
 		}
 	}
 }
 
-TypedArray<bool> CellularAutomata::step(const TypedArray<bool> &p_map, int p_width, int p_height) const {
-	TypedArray<bool> new_map;
+Vector<bool> CellularAutomata::step(const Vector<bool> &p_map, int p_width, int p_height) const {
+	Vector<bool> new_map;
 	new_map.resize(p_map.size());
 
 	for (int y = 0; y < p_height; y++) {
 		for (int x = 0; x < p_width; x++) {
 			if (x == 0 || y == 0 || x == p_width - 1 || y == p_height - 1)
-				new_map[x + y * p_width] = true;
+				new_map.write[x + y * p_width] = true;
 			else
-				new_map[x + y * p_width] = get_tile_type(p_map, p_width, p_height, x, y);
+				new_map.write[x + y * p_width] = get_tile_type(p_map, p_width, p_height, x, y);
 		}
 	}
 
 	return new_map;
 }
 
-bool CellularAutomata::get_tile_type(const TypedArray<bool> &p_map, int p_width, int p_height, int p_x, int p_y) const {
+bool CellularAutomata::get_tile_type(const Vector<bool> &p_map, int p_width, int p_height, int p_x, int p_y) const {
 	int adjacent_walls = get_adjacent_walls_count(p_map, p_width, p_width, p_x, p_y);
 	int nearby_walls = get_nearby_walls_count(p_map, p_width, p_width, p_x, p_y);
 
 	return adjacent_walls >= adjacent_walls_threshold || nearby_walls <= nearby_walls_threshold;
 }
 
-int CellularAutomata::get_adjacent_walls_count(const TypedArray<bool> &p_map, int p_width, int p_height, int p_x, int p_y) const {
+int CellularAutomata::get_adjacent_walls_count(const Vector<bool> &p_map, int p_width, int p_height, int p_x, int p_y) const {
 	int count = 0;
 
 	for (int x = p_x - 1; x <= p_x + 1; x++) {
@@ -68,7 +77,7 @@ int CellularAutomata::get_adjacent_walls_count(const TypedArray<bool> &p_map, in
 	return count;
 }
 
-int CellularAutomata::get_nearby_walls_count(const TypedArray<bool> &p_map, int p_width, int p_height, int p_x, int p_y) const {
+int CellularAutomata::get_nearby_walls_count(const Vector<bool> &p_map, int p_width, int p_height, int p_x, int p_y) const {
 	int count = 0;
 
 	for (int x = p_x - 2; x <= p_x + 2; x++) {
