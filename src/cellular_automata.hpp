@@ -28,6 +28,7 @@ protected:
 
 public:
 	TypedArray<bool> generate(int p_width, int p_height, int p_iterations, int p_density, int p_seed = 0) const;
+	TypedArray<bool> generate_from_buffer(const TypedArray<bool> &p_buffer, int p_width, int p_height, int p_iterations) const;
 
 	void set_adjacent_walls_threshold(int p_threshold);
 	int get_adjacent_walls_threshold() const { return adjacent_walls_threshold; }

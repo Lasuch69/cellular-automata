@@ -28,6 +28,28 @@ TypedArray<bool> CellularAutomata::generate(int p_width, int p_height, int p_ite
 	return map_arr;
 }
 
+TypedArray<bool> CellularAutomata::generate_from_buffer(const TypedArray<bool> &p_buffer, int p_width, int p_height, int p_iterations) const {
+	Vector<bool> map;
+	map.resize(p_buffer.size());
+
+	for (int i = 0; i < map.size(); i++) {
+		map.write[i] = p_buffer[i];
+	}
+
+	for (int i = 0; i < p_iterations; i++) {
+		map = step(map, p_width, p_height);
+	}
+
+	TypedArray<bool> map_arr;
+	map_arr.resize(map.size());
+
+	for (int i = 0; i < map.size(); i++) {
+		map_arr[i] = map[i];
+	}
+
+	return map_arr;
+}
+
 void CellularAutomata::random_fill(Vector<bool> &p_map, int p_width, int p_height, int p_density) const {
 	int random_column = rng->randi_range(4, p_width - 4);
 
@@ -106,6 +128,7 @@ void CellularAutomata::set_nearby_walls_threshold(int p_threshold) {
 
 void CellularAutomata::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("generate", "width", "height", "iterations", "density", "seed"), &CellularAutomata::generate, DEFVAL(0));
+	ClassDB::bind_method(D_METHOD("generate_from_buffer", "buffer", "width", "height", "iterations"), &CellularAutomata::generate_from_buffer);
 
 	ClassDB::bind_method(D_METHOD("set_adjacent_walls_threshold", "threshold"), &CellularAutomata::set_adjacent_walls_threshold);
 	ClassDB::bind_method(D_METHOD("get_adjacent_walls_threshold"), &CellularAutomata::get_adjacent_walls_threshold);
